@@ -1,0 +1,113 @@
+
+Freescale HC12-Assembler 
+(c) Copyright Freescale 1987-2008
+
+ Abs. Rel.   Loc    Obj. code   Source line
+ ---- ----   ------ ---------   -----------
+    1    1                      ;******************************************************************************
+    2    2                      ;*
+    3    3                      ;* CSE3215 Tutorial Winter 2007
+    4    4                      ;*
+    5    5                      ;*   	This is an example of an absolute assembler project file containing
+    6    6                      ;*      both runtime and assembly errors.
+    7    7                      ;*
+    8    8                      ;* main.asm
+    9    9                      ;*
+   10   10                      ;* April 05, 2006
+   11   11                      ;*
+   12   12                      ;******************************************************************************
+   13   13                      
+12814   17                      
+12815   18                      ; export symbols
+12816   19                                  XDEF        Entry   ; export 'Entry' symbol
+12817   20                                  ABSENTRY    Entry   ; for absolute assembly: mark this as application entry point
+12818   21                      
+12819   22                      
+12820   23          0000 1000   MyRAMStart    EQU  $1000  ; absolute address to place my variables
+12821   24          0000 3C00   MyROMStart    EQU  $3C00  ; absolute address to place my code/constant data
+12822   25                      
+12823   26          0000 00FF   OUTPUT      equ  %11111111 
+12824   27          0000 0000   INPUT       equ  $00
+12825   28          0000 3DB0   BASETIME    equ  $3DB0
+12826   29          0000 0020   DELAY       equ  $20        
+12827   30                      
+12828   31                      ; variable/data section
+12829   32                                  ORG MyRAMStart
+12830   33                                  
+12831   34                      ; Insert here your data definition. 
+12832   35  a001000             rate       ds.b 1
+12833   36  a001001             bitCount   ds.b 1
+12834   37  a001002             direction  ds.b 1
+12835   38                                     
+12836   39                      ; code section
+12837   40                              ORG MyROMStart
+12838   41                              
+12839   42                      Entry:
+12840   43  a003C00 CF10 20             lds     #$1020
+12841   44  a003C03 180B FF00           movb    #OUTPUT, DDRB
+             003C07 03         
+12842   45  a003C08 8680                ldaa    #%10000000
+12843   46  a003C0A 5B01                stab    PORTB           
+12844   47  a003C0C 180B 0002           movb    #INPUT, DDRH        
+             003C10 62         
+12845   48  a003C11 180B 0010           movb    #00, direction
+             003C15 02         
+12846   49  a003C16 180B 0710           movb    #$07, bitCount
+             003C1A 01         
+12847   50                              
+12848   51                      Loop
+12849   52  a003C1B 180B 2010           movb    #DELAY, rate
+             003C1F 00         
+12850   53  a003C20 163C 49             jsr     DelayLoop               
+12851   54                                          
+12852   55                      CheckDirection:
+12853   56  a003C23 F610 02             ldab    direction
+12854   57  a003C26 2605                bne     Left
+12855   58                              
+12856   59                      Right:
+12857   60  a003C28 7400 01             lsr     PORTB
+12858   61  a003C2B 2003                bra     Return
+12859   62                              
+
+Freescale HC12-Assembler 
+(c) Copyright Freescale 1987-2008
+
+ Abs. Rel.   Loc    Obj. code   Source line
+ ---- ----   ------ ---------   -----------
+12860   63                      Left:
+12861   64  a003C2D 7800 01             lsl     PORTB
+12862   65                              
+12863   66                      Return:
+12864   67  a003C30 7310 01             dec     bitCount
+12865   68  a003C33 26E6                bne     Loop
+12866   69                              
+12867   70  a003C35 B610 02             ldaa    direction
+12868   71  a003C38 41                  coma
+12869   72  a003C39 7A10 02             staa    direction
+12870   73  a003C3C 180B 0710           movb    #$07, bitCount
+             003C40 01         
+12871   74  a003C41 20D8                bra     Loop        
+12872   75                      
+12873   76                      
+12874   77                      Delay:
+12875   78  a003C43 34                  pshx
+12876   79  a003C44 36                  psha
+12877   80  a003C45 37                  pshb                   
+12878   81                              
+12879   82  a003C46 B610 00             ldaa    rate
+12880   83                              
+12881   84                      DelayLoop:                
+12882   85  a003C49 CE3D B0             ldx     #BASETIME
+12883   86                              
+12884   87                      Wait:
+12885   88  a003C4C 0435 FD             dbne    x, Wait         
+12886   89  a003C4F 43                  deca             
+12887   90  a003C50 27F7                beq     DelayLoop		
+12888   91                              
+12889   92  a003C52 33                  pulb
+12890   93  a003C53 32                  pula
+12891   94  a003C54 30                  pulx
+12892   95  a003C55 3D                  rts
+12893   96                              
+12894   97                      
+12895   98                              

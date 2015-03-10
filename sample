@@ -1,0 +1,55 @@
+
+
+Table: dc.w S1,S2,S3,S4,
+		 S1,S2,S3,S4,
+		 S1,S2,S3,S4,
+		 S1,S2,S3,S4
+
+TB1: dc.b T1,T2,T3,T4,
+		  T1,T2,T3,T4,
+		  T1,T2,T3,T4,
+		  T1,T2,T3,T4
+		 
+Input (in sequence): PORTH:  0,1,2,3,8,15
+	
+Output: PORTA = ????
+
+	 
+Begin:
+
+	ldx #Table		(x <- index)
+	ldab PTH 		(b <- PTH)
+	andb #$0F; 		(b <- PTH & 0x0F)
+	clra 			(PORTA = 0)
+	rolb 			(PORTB <- PORTB * 2) 
+	jsr[D,x]		(call Table[PTH])
+	
+bra Begin
+
+S1: movb #T1, PORTB;
+	jsr S5
+	rts
+	
+S2: movb #T2, PORTB;
+	jsr S5;
+	rts
+
+S3: movb #T3, PORTB;
+	jsr S5;
+	rts
+	
+S4: movb #T4, PORTB;
+	jsr S5;
+	rts	
+
+S5: 
+	lsrb (PORTB <- 2 * (PTH & 0x0f))
+	negb
+	sex B,D (D <- -PORTB)
+	
+	ldx #Tbl	(X <- Tbl)
+	leax D,x	(X <- Tbl - PORTB)
+	
+	ldab 15,x   (PORTB <- Tbl - PORTB + 15 = Tbl[15-PORTB])
+	stab PORTA  (PORTA <- PORTB)
+	rts	

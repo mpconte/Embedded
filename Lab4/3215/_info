@@ -1,0 +1,48 @@
+m255
+K3
+13
+cModel Technology
+dC:\altera\modelsim_ase\examples
+vBCDcount
+!s100 3FUX;[B<U5kI;fcWdfd]>0
+IVd7GPUAYFiIVR6aJKjI@<1
+Vc4_^aTP2CeZ52cc?N_dce0
+Z0 dC:\Documents and Settings\Matthew\Desktop\School\3215\Lab4
+Z1 w1239926472
+Z2 8C:/Documents and Settings/Matthew/Desktop/School/3215/Lab4/BCDcount.v
+Z3 FC:/Documents and Settings/Matthew/Desktop/School/3215/Lab4/BCDcount.v
+L0 57
+Z4 OV;L;6.4a;39
+r1
+!s85 0
+31
+Z5 o-work 3215 -nocovercells -O0
+n@b@c@dcount
+vms_clock
+!s100 ^?9JllH_b^al`=NPbdCS=0
+IlXzJB1nhNOI^JHIS?:YhF1
+V^V9OhYk^_M20eYAmfQ9J80
+Z6 dC:\Documents and Settings\Matthew\Desktop\School\3215\Lab4
+R1
+R2
+R3
+L0 1
+R4
+r1
+!s85 0
+31
+R5
+vseg7
+!s100 IQK_e5_k9B?T3PmCVVjJ=3
+IdlVI8H<O9a`HLFCi?A[0[1
+V;Dma5T9;eN9V[k8Kh=Rf[3
+R6
+R1
+R2
+R3
+L0 29
+R4
+r1
+!s85 0
+31
+R5

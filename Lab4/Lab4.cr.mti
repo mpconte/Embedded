@@ -1,0 +1,10 @@
+{C:/Documents and Settings/Matthew/Desktop/School/3215/Lab4/BCDcount.v} {1 {vlog -work 3215 -nocovercells {C:/Documents and Settings/Matthew/Desktop/School/3215/Lab4/BCDcount.v}
+Model Technology ModelSim ALTERA vlog 6.4a Compiler 2008.08 Oct 22 2008
+-- Compiling module ms_clock
+-- Compiling module seg7
+-- Compiling module BCDcount
+
+Top level modules:
+	BCDcount
+
+} {} {}}

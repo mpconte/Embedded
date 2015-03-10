@@ -1,0 +1,118 @@
+// PreLab 6 - SPI Slave
+// Matthew Conte
+// Usman Mahmood
+
+module Lab6_slave (clock, MISO, SS, toggle, MOSI, LED0, LED1, LED2);
+	
+	// clock - SCLK from Dragon12)
+	// MISO  -  line where data comes from bit by bit
+	// SS    -  Slave Select Line
+	input clock, MOSI, SS;
+	
+	// DIP switch data read from Dragon12
+	// Toggle switch data
+	input[7:0] toggle;	
+	
+	// MISO bit to send to Master
+	output MISO;
+	
+	// LED output to 7-segment Display
+	output[6:0] LED0, LED1, LED2;
+	
+	wire clock, SS, MOSI;
+	wire[7:0] toggle;		
+	
+	
+	// LED output for 7-segment display
+	wire[6:0] LED0, LED1, LED2;
+	
+	// Numerical digits to display on 7-segment Display
+	reg [7:0] BCD0, BCD1, BCD2;
+	
+	reg [3:0] counter;
+	
+	reg [7:0] in;
+	
+	reg MISO;
+	
+	initial
+	begin
+		//in = 0;
+		counter = 0;
+		//BCD0 = 0;
+		//BCD1 = 0;
+		//BCD2 = 0;
+	end	
+	
+	// Display input to 7-segment Display
+	seg7 seg0(BCD0, LED0);
+	seg7 seg1(BCD1, LED1);
+	seg7 seg2(BCD2, LED2);
+	
+	
+	always @ (posedge clock)
+	begin		
+			// Extract numerical digits of input			
+			//BCD0 <= in % 4'b1010;
+	        //BCD1 <= (in / 4'b1010) % 4'b1010;		
+	        
+	        // If Slave Select Output Mode is low, receive data from Master (via MOSI) bit by bit
+	        if (!SS)
+	        begin
+				in = in + MOSI;
+				
+				in = in << 1;
+				
+				counter = counter + 1;
+				
+				if (counter == 8)
+				begin
+					counter = 0;
+					BCD0 = in % 8'b00001010;
+					BCD1 = (in / 8'b00001010) % 8'b00001010;
+					BCD2 = (in / (8'b00001010*8'b00001010)) % 8'b00001010;
+				end
+			end
+			
+			// Otherwise, send data from toggle switche data to Master (via MISO) bit by bit
+			else
+			begin
+					MISO = toggle[counter];
+					counter = counter + 1;
+					
+					if (counter == 7)
+					begin
+						counter = 0;
+					end
+			end
+	end
+
+endmodule
+
+
+
+module seg7 (bcd, leds);
+	input [7:0] bcd;	
+	output [6:0] leds;		
+	
+	wire [7:0] bcd;
+	reg [6:0] leds;	
+
+	always @(bcd)	
+	begin
+		case (bcd)       
+			0: leds = 7'b1000000;
+			1: leds = 7'b1111001;
+			2: leds = 7'b0100100;
+			3: leds = 7'b0110000;
+			4: leds = 7'b0011001;
+			5: leds = 7'b0010010;
+			6: leds = 7'b0000010;
+			7: leds = 7'b1111000;
+			8: leds = 7'b0000000;
+			9: leds = 7'b0010000;
+			default: leds = 7'b0000000;
+		endcase	
+	end	
+	
+endmodule

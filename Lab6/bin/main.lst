@@ -1,0 +1,169 @@
+ANSI-C/cC++ Compiler for HC12 V-5.0.30 Build 6037, Feb  7 2006
+
+    1:  /***********************************************************************************
+    2:  
+    3:    York University CSE3215
+    4:    Main.c
+    5:    Jan 09, 2006
+    6:    
+    7:  ***********************************************************************************/
+    8:  #include <hidef.h>            /* common defines and macros */
+    9:  #include <mc9s12dp256.h>      /* MicroController derivative information */
+   10:  //#include "DBug12.h"
+   11:  
+   12:  #pragma LINK_INFO DERIVATIVE "mc9s12dp256b"
+   13:  
+   14:  char temp;
+   15:  
+   16:  /* occurs upon transmission/receiving of last SCLK edge
+   17:  __interrupt SP0(void)
+   18:  {
+   19:  	//SPICTL = PTH;	
+   20:  }
+   21:  */  
+   22:  
+   23:  // occurs on each DIP switch interrupt
+   24:  __interrupt void dip_switched(void)
+   25:  {
+
+Function: dip_switched
+Source  : Z:\3215\Lab6\Sources\main.c
+Options : -BfaGapLimitBits-1 -D_HCS12 -D_HCS12_SERIALMON -Env"GENPATH=Z:\3215\Lab6;Z:\3215\Lab6\bin;Z:\3215\Lab6\prm;Z:\3215\Lab6\cmd;Z:\3215\Lab6\Sources;C:\Program Files\Freescale\CW for HC12 V4.5\lib\HC12c\lib;C:\Program Files\Freescale\CW for HC12 V4.5\lib\HC12c\src;C:\Program Files\Freescale\CW for HC12 V4.5\lib\HC12c\include" -Env"LIBPATH=C:\Program Files\Freescale\CW for HC12 V4.5\lib\HC12c\include" -EnvOBJPATH=Z:\3215\Lab6\bin -EnvTEXTPATH=Z:\3215\Lab6\bin -Lasm=%n.lst -Ms -ObjN=Z:\3215\Lab6\Lab6_Data\Monitor\ObjectCode\main.c.o -WmsgSd1106
+
+   26:  
+   27:    PIFH = PTH;  //Clear Interrupt flags
+  0000 f60000       [3]     LDAB  _PTH
+  0003 7b0000       [3]     STAB  _PIFH
+   28:  		
+   29:  	  		
+   30:     // Enable PORTPS outputs
+   31:     // 0x80 = SS output
+   32:     // 0x40 = SCLK output
+   33:     // 0x20 = MOSI output
+   34:     
+   35:  		
+   36:  	// Send Data to Altera here
+   37:    
+   38:  	DDRS = DDRS | 0x80;// | 0x40 | 0x20;  	
+  0006 1c000080     [4]     BSET  _DDRS,#128
+   39:  		
+   40:  	PTS = PTS | 0x80; // Bring SS high to deselect device
+  000a 1c000080     [4]     BSET  _PTS,#128
+   41:  	SPI0DR = 0x00; // Write junk data to device (and start SCLK)
+  000e 790000       [3]     CLR   _SPI0DR
+   42:  	
+   43:  	while ((SPI0SR & 0x80) != 0x80); // Wait for transfer to finish 
+  0011 d600         [3]     LDAB  _SPI0SR
+  0013 c480         [1]     ANDB  #128
+  0015 c180         [1]     CMPB  #128
+  0017 26f8         [3/1]   BNE   *-6 ;abs = 0011
+   44:  	temp = SPI0DR; // Clear SPIF flag by reading data register
+  0019 d600         [3]     LDAB  _SPI0DR
+  001b 7b0000       [3]     STAB  temp
+   45:  	
+   46:  	PTS = PTS & ~0x80;      // Bring SS low to select slave
+  001e 1d000080     [4]     BCLR  _PTS,#128
+   47:  	SPI0DR = PTH; 		// send dip switch data to Altera
+  0022 f60000       [3]     LDAB  _PTH
+  0025 5b00         [2]     STAB  _SPI0DR
+   48:  	
+   49:  	while ((SPI0SR & 0x80) != 0x80); // Wait for transfer to finish 
+  0027 d600         [3]     LDAB  _SPI0SR
+  0029 c480         [1]     ANDB  #128
+  002b c180         [1]     CMPB  #128
+  002d 26f8         [3/1]   BNE   *-6 ;abs = 0027
+   50:  	temp = SPI0DR; // Clear SPIF flag by reading data register
+  002f d600         [3]     LDAB  _SPI0DR
+  0031 7b0000       [3]     STAB  temp
+   51:  	PTS = PTS | 0x80; // Bring SS high to deselect device 
+  0034 1c000080     [4]     BSET  _PTS,#128
+   52:      
+   53:  
+   54:    //PORTB = PTH;
+   55:  
+   56:  
+   57:  
+   58:  	// Read Data from Altera here
+   59:  	
+   60:  	DDRS = 0x00;
+  0038 790000       [3]     CLR   _DDRS
+   61:  	
+   62:  	PTS = PTS & ~0x80; // Bring SS low to select device 
+  003b 1d000080     [4]     BCLR  _PTS,#128
+   63:  
+   64:  	SPI0DR = 0x00; // Write junk byte to device (and start SCLK)
+  003f 790000       [3]     CLR   _SPI0DR
+   65:  	while ((SPI0SR & 0x80) == 0) ; // Wait for transfer to finish 
+  0042 4f0080fc     [4]     BRCLR _SPI0SR,#128,*+0 ;abs = 0042
+   66:  	PORTB = SPI0DR; // send received data to LED's 
+  0046 d600         [3]     LDAB  _SPI0DR
+  0048 5b00         [2]     STAB  _PORTAB:1
+   67:  
+   68:  	PTS = PTS | 0x80; // Bring SS high to deselect device 
+  004a 1c000080     [4]     BSET  _PTS,#128
+   69:  	
+   70:  }
+  004e 0b           [8]     RTI   
+   71:  
+   72:  
+   73:  void main(void)
+   74:  {    
+
+Function: main
+Source  : Z:\3215\Lab6\Sources\main.c
+Options : -BfaGapLimitBits-1 -D_HCS12 -D_HCS12_SERIALMON -Env"GENPATH=Z:\3215\Lab6;Z:\3215\Lab6\bin;Z:\3215\Lab6\prm;Z:\3215\Lab6\cmd;Z:\3215\Lab6\Sources;C:\Program Files\Freescale\CW for HC12 V4.5\lib\HC12c\lib;C:\Program Files\Freescale\CW for HC12 V4.5\lib\HC12c\src;C:\Program Files\Freescale\CW for HC12 V4.5\lib\HC12c\include" -Env"LIBPATH=C:\Program Files\Freescale\CW for HC12 V4.5\lib\HC12c\include" -EnvOBJPATH=Z:\3215\Lab6\bin -EnvTEXTPATH=Z:\3215\Lab6\bin -Lasm=%n.lst -Ms -ObjN=Z:\3215\Lab6\Lab6_Data\Monitor\ObjectCode\main.c.o -WmsgSd1106
+
+   75:     // enable HCS12 as Master (enables SCLK output)
+   76:     SPI0CR1_MSTR = 1;
+  0000 4c0010       [4]     BSET  _SPI0CR1,#16
+   77:  
+   78:    
+   79:     // enable interrupt (SPIF) when SPI receives/transmits last SCK edge in data
+   80:     // transfer operation
+   81:     //SPI0CR1_SPIE = 1;
+   82:       
+   83:     // first SCLK edge is issued at the start of 8-cycle transfer operation
+   84:     SPI0CR1_CPHA = 1;
+  0003 4c0004       [4]     BSET  _SPI0CR1,#4
+   85:  
+   86:  
+   87:     // Bidirectional pin mode enabled  
+   88:     // SCK output   	     enabled (since MSTR = 1)
+   89:     //SPICR2_SPC0 = 1;	
+   90:     
+   91:     // SS output enabled
+   92:     //SPICR2_MODFEN = 1;
+   93:     //SPICR1_SSOE = 1
+   94:     
+   95:     
+   96:     // Enable SPI system
+   97:     SPI0CR1_SPE = 1;
+  0006 4c0040       [4]     BSET  _SPI0CR1,#64
+   98:  
+   99:  
+  100:    SPI0BR = 0xFF; // 3Mhz SCLK 
+  0009 c6ff         [1]     LDAB  #255
+  000b 5b00         [2]     STAB  _SPI0BR
+  101:  
+  102:  
+  103:     // enable DIP switch interrupt
+  104:     PIEH = 0xFF; 
+  000d 7b0000       [3]     STAB  _PIEH
+  105:     
+  106:     // enable LED's as output
+  107:     DDRB = 0xFF;		     
+  0010 5b00         [2]     STAB  _DDRAB:1
+  108:    		
+  109:  
+  110:     
+  111:     
+  112:     
+  113:     EnableInterrupts;
+  0012 10ef         [1]     CLI   
+  114:       
+  115:     for (;;)
+  0014 20fe         [3]     BRA   *+0 ;abs = 0014
+  116:     {
+  117:     }
+  118:  }
+  119:  

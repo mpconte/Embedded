@@ -1,0 +1,99 @@
+ANSI-C/cC++ Compiler for HC12 V-5.0.35 Build 8093, Apr  3 2008
+
+    1:  /******************************************************************************
+    2:  
+    3:   York University COSC3215
+    4:   isrVectors.c
+    5:   June 12, 2004 
+    6:  
+    7:  ********************************************************************************/
+    8:  
+    9:  /*******************************************************************************
+   10:   External ISR Function prototypes
+   11:  ********************************************************************************/
+   12:  __interrupt void RealTimeInterrupt(void);
+   13:  
+   14:  /******************************************************************************
+   15:   Type definitions
+   16:  *******************************************************************************/
+   17:  typedef void (*IsrFunc)(void);                       /* ISR function type     */
+   18:  
+   19:  
+   20:  /******************************************************************************
+   21:   Global constants
+   22:   
+   23:   Note: Set the isr base address as follows:
+   24:          0x3E00 for the D-Bug12 Monitor target
+   25:          0xFF80 when Simulating 
+   26:  *******************************************************************************/
+   27:  const IsrFunc _vectab[] @0x3e00 /*0xFF80*/ =
+   28:  {
+   29:    (IsrFunc)0,                                        /* Reserved 0xFF80               */
+   30:    (IsrFunc)0,                                        /* Reserved 0xFF82               */
+   31:    (IsrFunc)0,                                        /* Reserved 0xFF84               */
+   32:    (IsrFunc)0,                                        /* Reserved 0xFF86               */
+   33:    (IsrFunc)0,                                        /* Reserved 0xFF88               */
+   34:    (IsrFunc)0,                                        /* Reserved 0xFF8A               */
+   35:    (IsrFunc)0,                                        /* PWM Emergency Shutdown 0xFF8C */
+   36:    (IsrFunc)0,                                        /* PortP Interrupt 0xFF8E        */
+   37:    (IsrFunc)0,                                        /* MSCAN4 Transmit 0xFF90        */
+   38:    (IsrFunc)0,                                        /* MSCAN4 Receive 0xFF92         */
+   39:    (IsrFunc)0,                                        /* MSCAN4 Errors 0xFF94          */
+   40:    (IsrFunc)0,                                        /* MSCAN4 WakeUp 0xFF96          */
+   41:    (IsrFunc)0,                                        /* MSCAN3 Transmit 0xFF98        */
+   42:    (IsrFunc)0,                                        /* MSCAN3 Receive 0xFF9A         */
+   43:    (IsrFunc)0,                                        /* MSCAN3 Errors 0xFF9C          */
+   44:    (IsrFunc)0,                                        /* MSCAN3 WakeUp 0xFF9E          */
+   45:    (IsrFunc)0,                                        /* MSCAN2 Transmit 0xFFA0        */
+   46:    (IsrFunc)0,                                        /* MSCAN2 Receive 0xFFA2         */
+   47:    (IsrFunc)0,                                        /* MSCAN2 Errors 0xFFA4          */
+   48:    (IsrFunc)0,                                        /* MSCAN2 WakeUp 0xFFA6          */
+   49:    (IsrFunc)0,                                        /* MSCAN1 Transmit 0xFFA8        */
+   50:    (IsrFunc)0,                                        /* MSCAN1 Receive 0xFFAA         */
+   51:    (IsrFunc)0,                                        /* MSCAN1 Errors 0xFFAC          */
+   52:    (IsrFunc)0,                                        /* MSCAN1 WakeUp 0xFFAE          */
+   53:    (IsrFunc)0,                                        /* MSCAN0 Transmit 0xFFB0        */
+   54:    (IsrFunc)0,                                        /* MSCAN0 Receive 0xFFB2         */
+   55:    (IsrFunc)0,                                        /* MSCAN0 Errors 0xFFB4          */
+   56:    (IsrFunc)0,                                        /* MSCAN0 WakeUp 0xFFB6          */
+   57:    (IsrFunc)0,                                        /* Flash 0xFFB8                  */
+   58:    (IsrFunc)0,                                        /* Eeprom WakeUp 0xFFBA          */
+   59:    (IsrFunc)0,                                        /* SPI2  0xFFBC                  */
+   60:    (IsrFunc)0,                                        /* SPI1  0xFFBE                  */
+   61:    (IsrFunc)0,                                        /* IIC Bus 0xFFC0                */
+   62:    (IsrFunc)0,                                        /* DLC 0xFFC2                    */
+   63:    (IsrFunc)0,                                        /* SCME 0xFFC4                   */
+   64:    (IsrFunc)0,                                        /* CRG Lock 0xFFC6               */
+   65:    (IsrFunc)0,                                        /* Pulse AccB Overflow 0xFFC8    */
+   66:    (IsrFunc)0,                                        /* Mod Down Cnt Underflow 0xFFCA */
+   67:    (IsrFunc)0,                                        /* PortH Interrupt 0xFFCC        */
+   68:    (IsrFunc)0,                                        /* PortJ Interrupt 0xFFCE        */
+   69:    (IsrFunc)0,                                        /* ATD1 0xFFD0                   */
+   70:    (IsrFunc)0,                                        /* ATD0 0xFFD2                   */
+   71:    (IsrFunc)0,                                        /* SCI1 0xFFD4                   */
+   72:    (IsrFunc)0,                                        /* SCI0 0xFFD6                   */
+   73:    (IsrFunc)0,                                        /* SPI0 0xFFD8                   */
+   74:    (IsrFunc)0,                                        /* Pulse AccA Input Edge 0xFFDA  */
+   75:    (IsrFunc)0,                                        /* Pulse AccA Overflow 0xFFDC    */
+   76:    (IsrFunc)0,                                        /* Timer Overflow 0xFFDE         */
+   77:    (IsrFunc)0,                                        /* Timer 7 0xFFE0                */ 
+   78:    (IsrFunc)0,                                        /* Timer 6 0xFFE2                */
+   79:    (IsrFunc)0,                                        /* Timer 5 0xFFE4                */
+   80:    (IsrFunc)0,                                        /* Timer 4 0xFFE6                */
+   81:    (IsrFunc)0,                                        /* Timer 3 0xFFE8                */
+   82:    (IsrFunc)0,                                        /* Timer 2 0xFFEA                */
+   83:    (IsrFunc)0,                                        /* Timer 1 0xFFEC                */
+   84:    (IsrFunc)0,                                        /* Timer 0 0xFFEE                */
+   85:    (IsrFunc)RealTimeInterrupt,                        /* RTI 0xFFF0                    */
+   86:    (IsrFunc)0,                                        /* IRQ 0xFFF2                    */
+   87:    (IsrFunc)0,                                        /* XIRQ 0xFFF4                   */
+   88:    (IsrFunc)0,                                        /* SWI 0xFFF6                    */
+   89:    (IsrFunc)0,                                        /* Unimpl Instr Trap 0xFFF8      */
+   90:    (IsrFunc)0,                                        /* COP Failure Reset(N/A) 0xFFFA */
+   91:    (IsrFunc)0,                                        /* COP Clk Mon Fail(N/A) 0xFFFC  */
+   92:    (IsrFunc)0                                         /* Reset(N/A) 0xFFFE             */
+   93:  };
+   94:  
+   95:  
+   96:  // isrVectors.c
+   97:  

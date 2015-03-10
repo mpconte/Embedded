@@ -1,0 +1,51 @@
+ANSI-C/cC++ Compiler for HC12 V-5.0.35 Build 8093, Apr  3 2008
+
+    1:  /***********************************************************************************
+    2:  
+    3:    York University CSE3215
+    4:    Main.c
+    5:    Jan 09, 2006
+    6:    
+    7:  ***********************************************************************************/
+    8:  #include <hidef.h>            /* common defines and macros */
+    9:  #include <mc9s12dp256.h>      /* MicroController derivative information */
+   10:  
+   11:  
+   12:  #pragma LINK_INFO DERIVATIVE "mc9s12dp256b"
+   13:  
+   14:  unsigned short int counter;
+   15:  
+   16:  
+   17:  void main(void)
+   18:  {
+
+Function: main
+Source  : C:\Documents and Settings\Matthew\Desktop\School\3215\_CSE3215_C_MS\Sources\main.c
+Options : -D_HCS12 -D_HCS12_SERIALMON -Env"GENPATH=C:\Documents and Settings\Matthew\Desktop\School\3215\_CSE3215_C_MS;C:\Documents and Settings\Matthew\Desktop\School\3215\_CSE3215_C_MS\bin;C:\Documents and Settings\Matthew\Desktop\School\3215\_CSE3215_C_MS\prm;C:\Documents and Settings\Matthew\Desktop\School\3215\_CSE3215_C_MS\cmd;C:\Documents and Settings\Matthew\Desktop\School\3215\_CSE3215_C_MS\Sources;C:\Program Files\Freescale\CodeWarrior for HCS12 V4.7\lib\HC12c\lib;C:\Program Files\Freescale\CodeWarrior for HCS12 V4.7\lib\HC12c\src;C:\Program Files\Freescale\CodeWarrior for HCS12 V4.7\lib\HC12c\include" -Env"LIBPATH=C:\Program Files\Freescale\CodeWarrior for HCS12 V4.7\lib\HC12c\include" -Env"OBJPATH=C:\Documents and Settings\Matthew\Desktop\School\3215\_CSE3215_C_MS\bin" -Env"TEXTPATH=C:\Documents and Settings\Matthew\Desktop\School\3215\_CSE3215_C_MS\bin" -Lasm=%n.lst -Ms -ObjN="C:\Documents and Settings\Matthew\Desktop\School\3215\_CSE3215_C_MS\Labx_Data\Monitor\ObjectCode\main.c.o" -WmsgSd1106
+
+   19:    /* put your own code here */
+   20:    EnableInterrupts;  
+  0000 10ef         [1]     CLI   
+   21:    
+   22:    for(;;)
+  0002 200c         [3]     BRA   *+14 ;abs = 0010
+   23:    {
+   24:              
+   25:      if (++counter == 0)
+  0004 fe0000       [3]     LDX   counter
+  0007 08           [1]     INX   
+  0008 7e0000       [3]     STX   counter
+  000b 26f7         [3/1]   BNE   *-7 ;abs = 0004
+   26:        PORTA++;
+  000d 720000       [4]     INC   _PORTAB
+   27:      
+   28:      
+   29:      /*
+   30:        DDRB=0x11;
+   31:      
+   32:        PORTB=0x0F;
+   33:      */    
+   34:    } /* wait forever */
+  0010 20f2         [3]     BRA   *-12 ;abs = 0004
+   35:  }
+   36:  

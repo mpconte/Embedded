@@ -1,0 +1,182 @@
+ANSI-C/cC++ Compiler for HC12 V-5.0.35 Build 8093, Apr  3 2008
+
+    1:  /***********************************************************************************
+    2:  
+    3:    York University CSE3215
+    4:    Main.c
+    5:    Jan 09, 2006
+    6:    
+    7:  ***********************************************************************************/
+    8:  #include <hidef.h>            /* common defines and macros */
+    9:  #include <mc9s12dp256.h>      /* MicroController derivative information */
+   10:  
+   11:  
+   12:  #pragma LINK_INFO DERIVATIVE "mc9s12dp256b"
+   13:  
+   14:  
+   15:  __interrupt void RealTimeInterrupt(void);
+   16:   
+   17:  
+   18:  static volatile unsigned char rtiCnt;        /* to count number of RTIs */
+   19:  static unsigned char voltage; 
+   20:  static unsigned char temp;
+   21:  static unsigned char max_8 = 0b11111111;
+   22:  
+   23:  
+   24:  // digit array to display numbers on 7-segment LED
+   25:  byte numbers[11] = {
+   26:  0x3F, // 0 
+   27:  0x06, // 1
+   28:  0x5B, // 2
+   29:  0x4F, // 3
+   30:  0x66, // 4
+   31:  0x6D, // 5
+   32:  0x7D, // 6
+   33:  0x07, // 7
+   34:  0x7F, // 8
+   35:  0x6F, // 9
+   36:  0x80  // .
+   37:  };
+   38:   
+   39:  void main(void)
+   40:  {
+
+Function: main
+Source  : C:\Documents and Settings\Matthew\Desktop\School\3215\VR2\Sources\main.c
+Options : -D_HCS12 -D_HCS12_SERIALMON -Env"GENPATH=C:\Documents and Settings\Matthew\Desktop\School\3215\VR2;C:\Documents and Settings\Matthew\Desktop\School\3215\VR2\bin;C:\Documents and Settings\Matthew\Desktop\School\3215\VR2\prm;C:\Documents and Settings\Matthew\Desktop\School\3215\VR2\cmd;C:\Documents and Settings\Matthew\Desktop\School\3215\VR2\Sources;C:\Program Files\Freescale\CodeWarrior for HCS12 V4.7\lib\HC12c\lib;C:\Program Files\Freescale\CodeWarrior for HCS12 V4.7\lib\HC12c\src;C:\Program Files\Freescale\CodeWarrior for HCS12 V4.7\lib\HC12c\include" -Env"LIBPATH=C:\Program Files\Freescale\CodeWarrior for HCS12 V4.7\lib\HC12c\include" -Env"OBJPATH=C:\Documents and Settings\Matthew\Desktop\School\3215\VR2\bin" -Env"TEXTPATH=C:\Documents and Settings\Matthew\Desktop\School\3215\VR2\bin" -Lasm=%n.lst -Ms -ObjN="C:\Documents and Settings\Matthew\Desktop\School\3215\VR2\VR2_Data\Monitor\ObjectCode\main.c.o" -WmsgSd1106
+
+   41:    /* set up Port B */
+   42:    DDRB = 0xFF;                /* set portb pins all to output */
+  0000 cc80ff       [2]     LDD   #33023
+  0003 5b00         [2]     STAB  _DDRAB:1
+   43:    PORTB = 0x00;         /* turn Port B LEDs off */
+  0005 790000       [3]     CLR   _PORTAB:1
+   44:    
+   45:    DDRP = 0xFF;
+  0008 7b0000       [3]     STAB  _DDRP
+   46:   
+   47:    /* Set up the A/D converter and start it running; we use 8 bit resolution.*/
+   48:    ATD0CTL2 = 0x80;      /* turn on ADC */
+  000b 5a00         [2]     STAA  _ATD0CTL23
+   49:    ATD0CTL3 = 0x08;      /* 1 AD conversion/sequence */
+  000d c608         [1]     LDAB  #8
+  000f 5b00         [2]     STAB  _ATD0CTL23:1
+   50:    ATD0CTL4 = 0xEB;      /* 8 bit, 16 AD clocks/conversion, 1 MHz clock */
+  0011 c6eb         [1]     LDAB  #235
+  0013 5b00         [2]     STAB  _ATD0CTL45
+   51:    ATD0CTL5 = 0x27;   /* left justify, unsigned, sample only specified channel */
+  0015 c627         [1]     LDAB  #39
+  0017 5b00         [2]     STAB  _ATD0CTL45:1
+   52:   
+   53:    /* set up RTI */
+   54:    RTICTL = 0x31;            /* (2*2^12)/(4x10^6) = 2.048 ms per RTI */
+  0019 c631         [1]     LDAB  #49
+  001b 5b00         [2]     STAB  _RTICTL
+   55:    CRGINT |= 0x80;            /* enable RTI interrupt */
+  001d 4c0080       [4]     BSET  _CRGINT,#128
+   56:    rtiCnt = 0;                /* RTI counter to 0 */
+  0020 790000       [3]     CLR   rtiCnt
+   57:    
+   58:    EnableInterrupts; 
+  0023 10ef         [1]     CLI   
+   59:    
+   60:    for (;;) {                /* our infinite loop */
+  0025 203c         [3]     BRA   *+62 ;abs = 0063
+   61:   
+   62:      if (rtiCnt == 2)      /* check the AD registers every 10 msec */
+  0027 f60000       [3]     LDAB  rtiCnt
+  002a c102         [1]     CMPB  #2
+  002c 2635         [3/1]   BNE   *+55 ;abs = 0063
+   63:      { 
+   64:        /* light LEDs according to range in AD result register; since 8 bit,
+   65:        *  we need only to look at the high byte, ATD0DR0H, of the result register*/
+   66:   
+   67:   /*
+   68:        if(ATD0DR0H <= 0x20)  
+   69:         PORTB = 0x00;
+   70:        if(ATD0DR0H > 0x20)
+   71:         PORTB = 0x01;
+   72:        if(ATD0DR0H > 0x40)
+   73:         PORTB = 0x03;
+   74:        if(ATD0DR0H > 0x60)
+   75:         PORTB = 0x07;
+   76:        if(ATD0DR0H > 0x80)
+   77:         PORTB = 0x0f;
+   78:        if(ATD0DR0H > 0xa0)
+   79:         PORTB = 0x1f;
+   80:        if(ATD0DR0H > 0xc0)
+   81:         PORTB = 0x3f;
+   82:        if(ATD0DR0H > 0xe0)
+   83:         PORTB = 0x7f;
+   84:        if(ATD0DR0H == 0xff)   
+   85:         PORTB = 0xff;
+   86:            */       
+   87:         
+   88:         //Display actual voltage to 7-segment display          
+   89:            
+   90:         voltage =  (char) ((0b00000101 * ATD0DR0H) / max_8);
+  002e d600         [3]     LDAB  _ATD0DR0
+  0030 37           [2]     PSHB  
+  0031 c605         [1]     LDAB  #5
+  0033 32           [3]     PULA  
+  0034 12           [1]     MUL   
+  0035 3b           [2]     PSHD  
+  0036 f60000       [3]     LDAB  max_8
+  0039 87           [1]     CLRA  
+  003a b745         [1]     TFR   D,X
+  003c 3a           [3]     PULD  
+  003d 1815         [12]    IDIVS 
+  003f b751         [1]     TFR   X,B
+  0041 7b0000       [3]     STAB  voltage
+   91:         temp = voltage / 0b00001010;
+  0044 860a         [1]     LDAA  #10
+  0046 160000       [4]     JSR   _BDIVMODU
+  0049 7a0000       [3]     STAA  temp
+   92:  
+   93:         PORTB = numbers[voltage % 0b00001010];
+  004c f60000       [3]     LDAB  voltage
+  004f 860a         [1]     LDAA  #10
+  0051 160000       [4]     JSR   _BDIVMODU
+  0054 ce0000       [2]     LDX   #numbers
+  0057 a6e5         [3]     LDAA  B,X
+  0059 5a00         [2]     STAA  _PORTAB:1
+   94:         PTP = 0x07;
+  005b c607         [1]     LDAB  #7
+  005d 7b0000       [3]     STAB  _PTP
+   95:         
+   96:         /*
+   97:         rtiCnt = 0;
+   98:         while ( rtiCnt <= 1);             
+   99:                
+  100:         PORTB = numbers[(voltage / 10) % 10];
+  101:         PTP = 0x0B;
+  102:         
+  103:         rtiCnt = 0;
+  104:         while ( rtiCnt <= 1);             
+  105:         
+  106:         PORTB = numbers[(voltage / 100) % 10];
+  107:         PTP = 0x0D;      
+  108:                       */
+  109:         rtiCnt = 0;
+  0060 790000       [3]     CLR   rtiCnt
+  110:      }
+  111:    }
+  0063 20c2         [3]     BRA   *-60 ;abs = 0027
+  112:  } /* end main() */
+  113:   
+  114:     
+  115:  __interrupt void RealTimeInterrupt(void)
+  116:  {
+
+Function: RealTimeInterrupt
+Source  : C:\Documents and Settings\Matthew\Desktop\School\3215\VR2\Sources\main.c
+Options : -D_HCS12 -D_HCS12_SERIALMON -Env"GENPATH=C:\Documents and Settings\Matthew\Desktop\School\3215\VR2;C:\Documents and Settings\Matthew\Desktop\School\3215\VR2\bin;C:\Documents and Settings\Matthew\Desktop\School\3215\VR2\prm;C:\Documents and Settings\Matthew\Desktop\School\3215\VR2\cmd;C:\Documents and Settings\Matthew\Desktop\School\3215\VR2\Sources;C:\Program Files\Freescale\CodeWarrior for HCS12 V4.7\lib\HC12c\lib;C:\Program Files\Freescale\CodeWarrior for HCS12 V4.7\lib\HC12c\src;C:\Program Files\Freescale\CodeWarrior for HCS12 V4.7\lib\HC12c\include" -Env"LIBPATH=C:\Program Files\Freescale\CodeWarrior for HCS12 V4.7\lib\HC12c\include" -Env"OBJPATH=C:\Documents and Settings\Matthew\Desktop\School\3215\VR2\bin" -Env"TEXTPATH=C:\Documents and Settings\Matthew\Desktop\School\3215\VR2\bin" -Lasm=%n.lst -Ms -ObjN="C:\Documents and Settings\Matthew\Desktop\School\3215\VR2\VR2_Data\Monitor\ObjectCode\main.c.o" -WmsgSd1106
+
+  117:    rtiCnt++;                    /* increment counter        */
+  0000 720000       [4]     INC   rtiCnt
+  118:    CRGFLG = 0x80;            /* clear rti flag               */
+  0003 c680         [1]     LDAB  #128
+  0005 5b00         [2]     STAB  _CRGFLG
+  119:  } 
+  0007 0b           [8]     RTI   
+  120:   
